@@ -1,0 +1,28 @@
+{
+  "name": "force-update",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest",
+    "start": "tsc --watch",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/esherif2022/force-update.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/esherif2022/force-update/issues"
+  },
+  "homepage": "https://github.com/esherif2022/force-update#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "tsc": "^2.0.4",
+    "typescript": "^5.7.2"
+  }
+}
