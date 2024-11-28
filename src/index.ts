@@ -1,9 +1,7 @@
 import fetch from "node-fetch";
 
 export type TUpdateCheckResult = {
-  isMandatory: boolean;
-  isOptional: boolean;
-  updateUrl: string | null;
+  result: string | null;
 };
 
 export type TConfig = {
@@ -38,53 +36,67 @@ function parseVersion(version: string): number {
 /**
  * Utility function to check update requirements.
  * @param {string} configUrl - URL to the configuration file (force_update_config_file.json).
- * @param {string} currentVersion - Current version string of the app (e.g., "1.2.0").
- * @returns {Promise<{isMandatory: boolean, isOptional: boolean, updateUrl: string | null}>}
+ * @param {TConfig} configObject - Configuration object with latest, minimum, and url fields.
+ * @param {string | number} currentVersion - Current version string of the app (e.g., "1.2.0").
+ * @returns {Promise<{result: string | null}>}
  */
 export async function checkForUpdates(
-  configUrl: string,
-  currentVersion: string
+  currentVersion: string | number,
+  configUrl?: string,
+  configObject?: TConfig
 ): Promise<TUpdateCheckResult> {
-  if (!configUrl || !currentVersion) {
-    throw new Error("Both configUrl and currentVersion are required.");
+  // Validate required parameters
+  if (!currentVersion) {
+    throw new Error("The 'currentVersion' parameter is required.");
+  }
+  if (!configUrl && !configObject) {
+    throw new Error("Either 'configUrl' or 'configObject' must be provided.");
   }
 
   try {
-    // Convert version string to integer
-    const currentVersionCode = parseVersion(currentVersion);
+    // Convert currentVersion to a numeric code
+    const currentVersionCode =
+      typeof currentVersion === "number"
+        ? currentVersion
+        : parseVersion(currentVersion);
 
-    // Fetch the configuration file
-    const response = await fetch(configUrl);
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch config from ${configUrl}: ${response.statusText}`
-      );
-    }
-    const config = (await response.json()) as TConfig;
+    // Fetch the configuration if configObject is not provided
+    const config: TConfig = configObject || (await fetchConfig(configUrl!));
 
-    // Extract values from the config
+    // Validate configuration file contents
     const { latest, minimum, url } = config.android || {};
-
     if (!latest || !minimum || !url) {
       throw new Error(
-        "Invalid configuration file. Missing required fields: latest, minimum, url."
+        "Invalid configuration file. Missing required fields: 'latest', 'minimum', or 'url'."
       );
     }
+
+    // Convert versions to numeric codes
     const latestVersionCode = parseVersion(latest);
     const minimumVersionCode = parseVersion(minimum);
 
-    // Determine flags
-    const isMandatory = currentVersionCode < minimumVersionCode;
-    const isOptional = !isMandatory && currentVersionCode < latestVersionCode;
+    // Determine update requirement
+    if (currentVersionCode < minimumVersionCode) {
+      return { result: "mandatory" };
+    } else if (currentVersionCode < latestVersionCode) {
+      return { result: "optional" };
+    }
 
-    return {
-      isMandatory,
-      isOptional,
-      updateUrl: isMandatory || isOptional ? url : null,
-    };
+    return { result: null }; // App is up-to-date
   } catch (error) {
     throw error;
   }
+}
+
+// Helper function to fetch configuration file
+async function fetchConfig(url: string): Promise<TConfig> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch config from ${url}: ${response.statusText}`
+    );
+  }
+  return (await response.json()) as TConfig;
 }
 
 export default function reactNativeUpdatePlugin() {
