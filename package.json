@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node-fetch": "^2.6.12",
     "rollup": "^4.27.4"
   }
 }
