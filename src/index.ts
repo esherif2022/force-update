@@ -1,15 +1,14 @@
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 
 export type TUpdateCheckResult = {
-  result: string | null;
+    result: 'mandatory' | 'optional' | null;
+    url?: string;
 };
 
 export type TConfig = {
-  android: {
-    latest: string;
-    minimum: string;
-    url: string;
-  };
+    versionCode: number | string;
+    minimumVersionCode: number | string;
+    url?: string;
 };
 
 /**
@@ -19,88 +18,123 @@ export type TConfig = {
  * @throws {Error} - If the input is not a valid version string.
  */
 function parseVersion(version: string): number {
-  if (typeof version !== "string") {
-    throw new Error("Version must be a string.");
-  }
+    if (typeof version !== 'string') {
+        throw new Error('Version must be a string.');
+    }
 
-  const versionParts = version.split(".");
-  if (!versionParts.every((part) => /^\d+$/.test(part))) {
-    throw new Error(
-      'Invalid version format. Expected "x.y.z" with numeric parts.'
-    );
-  }
+    const versionParts = version.split('.');
+    if (!versionParts.every((part) => /^\d+$/.test(part))) {
+        throw new Error(
+            'Invalid version format. Expected "x.y.z" with numeric parts.'
+        );
+    }
 
-  return parseInt(versionParts.join(""), 10);
+    return parseInt(versionParts.join(''), 10);
 }
 
 /**
- * Utility function to check update requirements.
- * @param {string} configUrl - URL to the configuration file (force_update_config_file.json).
- * @param {TConfig} configObject - Configuration object with latest, minimum, and url fields.
- * @param {string | number} currentVersion - Current version string of the app (e.g., "1.2.0").
- * @returns {Promise<{result: string | null}>}
+ * Helper function to determine update requirements.
+ * @param {number} currentVersionCode - Numeric version code of the app.
+ * @param {TConfig} config - Configuration object.
+ * @returns {TUpdateCheckResult}
  */
-export async function checkForUpdates(
-  currentVersion: string | number,
-  configUrl?: string,
-  configObject?: TConfig
-): Promise<TUpdateCheckResult> {
-  // Validate required parameters
-  if (!currentVersion) {
-    throw new Error("The 'currentVersion' parameter is required.");
-  }
-  if (!configUrl && !configObject) {
-    throw new Error("Either 'configUrl' or 'configObject' must be provided.");
-  }
+function determineUpdateRequirement(
+    currentVersionCode: number,
+    config: TConfig
+): TUpdateCheckResult {
+    const configVersionCode =
+        typeof config.versionCode === 'number'
+            ? config.versionCode
+            : parseVersion(config.versionCode);
+    const configMinimumVersionCode =
+        typeof config.minimumVersionCode === 'number'
+            ? config.minimumVersionCode
+            : parseVersion(config.minimumVersionCode);
 
-  try {
-    // Convert currentVersion to a numeric code
-    const currentVersionCode =
-      typeof currentVersion === "number"
-        ? currentVersion
-        : parseVersion(currentVersion);
-
-    // Fetch the configuration if configObject is not provided
-    const config: TConfig = configObject || (await fetchConfig(configUrl!));
-
-    // Validate configuration file contents
-    const { latest, minimum, url } = config.android || {};
-    if (!latest || !minimum || !url) {
-      throw new Error(
-        "Invalid configuration file. Missing required fields: 'latest', 'minimum', or 'url'."
-      );
+    if (currentVersionCode < configVersionCode) {
+        return {
+            result: 'mandatory',
+            url: config.url,
+        };
+    } else if (currentVersionCode < configMinimumVersionCode) {
+        return {
+            result: 'optional',
+            url: config.url,
+        };
     }
-
-    // Convert versions to numeric codes
-    const latestVersionCode = parseVersion(latest);
-    const minimumVersionCode = parseVersion(minimum);
-
-    // Determine update requirement
-    if (currentVersionCode < minimumVersionCode) {
-      return { result: "mandatory" };
-    } else if (currentVersionCode < latestVersionCode) {
-      return { result: "optional" };
-    }
-
-    return { result: null }; // App is up-to-date
-  } catch (error) {
-    throw error;
-  }
+    return {
+        result: null,
+    };
 }
 
 // Helper function to fetch configuration file
 async function fetchConfig(url: string): Promise<TConfig> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch config from ${url}: ${response.statusText}`
-    );
-  }
-  return (await response.json()) as TConfig;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(
+            `Failed to fetch config from ${url}: ${response.statusText}`
+        );
+    }
+    const result = (await response.json()) as TConfig;
+    if (!result.versionCode || !result.minimumVersionCode) {
+        throw new Error(
+            'Invalid configuration file. Missing required fields: versionCode, minimumVersionCode'
+        );
+    }
+    return (await response.json()) as TConfig;
 }
 
-export default function reactNativeUpdatePlugin() {
-  return {
-    name: "react-native-update-plugin",
-  };
+/**
+ * Checks for updates using a configuration URL.
+ * @param {string} configUrl - URL to the configuration file.
+ * @param {string | number} currentVersion - Current version of the app.
+ * @returns {Promise<TUpdateCheckResult>}
+ */
+export async function checkForUpdatesFromUrl({
+    currentVersion,
+    configUrl,
+}: {
+    currentVersion: string | number;
+    configUrl: string;
+}): Promise<TUpdateCheckResult> {
+    if (!configUrl) {
+        throw new Error("The 'configUrl' parameter is required.");
+    }
+    const config = await fetchConfig(configUrl);
+    const currentVersionCode =
+        typeof currentVersion === 'number'
+            ? currentVersion
+            : parseVersion(currentVersion);
+
+    return determineUpdateRequirement(currentVersionCode, config);
+}
+
+/**
+ * Checks for updates using a configuration object.
+ * @param {TConfig} config - Configuration object.
+ * @param {string | number} currentVersion - Current version of the app.
+ * @returns {TUpdateCheckResult}
+ */
+export function checkForUpdatesFromFile({
+    currentVersion,
+    config,
+}: {
+    currentVersion: string | number;
+    config: TConfig;
+}): TUpdateCheckResult {
+    if (!config) {
+        throw new Error("The 'config' parameter is required.");
+    }
+    const currentVersionCode =
+        typeof currentVersion === 'number'
+            ? currentVersion
+            : parseVersion(currentVersion);
+
+    return determineUpdateRequirement(currentVersionCode, config);
+}
+
+export default function forceUpdate() {
+    return {
+        name: 'force-update',
+    };
 }
