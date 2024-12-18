@@ -1,34 +1,30 @@
 {
-  "name": "force-update",
-  "version": "1.0.2",
-  "description": "",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "build": "node_modules/.bin/rollup -c",
-    "test": "jest",
-    "start": "tsc --watch",
-    "prepare": "npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/esherif2022/force-update.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/esherif2022/force-update/issues"
-  },
-  "homepage": "https://github.com/esherif2022/force-update#readme",
-  "dependencies": {
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "tsc": "^2.0.4",
-    "tslib": "^2.8.1",
-    "typescript": "^5.7.2"
-  },
-  "devDependencies": {
-    "@rollup/plugin-typescript": "^12.1.1",
-    "rollup": "^4.27.4"
-  }
+    "name": "force-update",
+    "version": "1.0.3",
+    "description": "",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/esherif2022/force-update.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/esherif2022/force-update/issues"
+    },
+    "homepage": "https://github.com/esherif2022/force-update#readme",
+    "devDependencies": {
+        "ts-node": "^10.9.2",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2"
+    }
 }

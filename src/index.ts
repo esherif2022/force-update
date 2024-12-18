@@ -49,12 +49,12 @@ function determineUpdateRequirement(
             ? config.minimumVersionCode
             : parseVersion(config.minimumVersionCode);
 
-    if (currentVersionCode < configVersionCode) {
+    if (currentVersionCode < configMinimumVersionCode) {
         return {
             result: 'mandatory',
             url: config.url,
         };
-    } else if (currentVersionCode < configMinimumVersionCode) {
+    } else if (currentVersionCode < configVersionCode) {
         return {
             result: 'optional',
             url: config.url,
