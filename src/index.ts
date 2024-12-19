@@ -40,6 +40,7 @@ function determineUpdateRequirement(
     currentVersionCode: number,
     config: TConfig
 ): TUpdateCheckResult {
+    const url = config.url;
     const configVersionCode =
         typeof config.versionCode === 'number'
             ? config.versionCode
@@ -52,16 +53,17 @@ function determineUpdateRequirement(
     if (currentVersionCode < configMinimumVersionCode) {
         return {
             result: 'mandatory',
-            url: config.url,
+            url,
         };
     } else if (currentVersionCode < configVersionCode) {
         return {
             result: 'optional',
-            url: config.url,
+            url,
         };
     }
     return {
         result: null,
+        url,
     };
 }
 

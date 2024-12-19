@@ -31,9 +31,13 @@ import { checkForUpdatesFromUrl } from 'force-update';
 const currentVersion = '1.0.0'; // Current app version
 const configUrl = 'https://example.com/force_update_config.json'; // Remote config URL
 
-const result = await checkForUpdatesFromUrl({ currentVersion, configUrl });
-console.log(result);
-// { result: "mandatory" | "optional" | null, url?: "https://example.com/update" }
+try {
+    const result = await checkForUpdatesFromUrl({ currentVersion, configUrl });
+    console.log(result);
+    // { result: "mandatory" | "optional" | null, url?: "https://example.com/update" }
+} catch (error) {
+    console.error('Error checking updates from URL:', error);
+}
 ```
 
 #### 2. Using a Local Config Object
@@ -50,12 +54,16 @@ const configObject = {
     url: 'https://example.com/update', // Latest version URL (optional)
 };
 
-const result = checkForUpdatesFromFile({
-    currentVersion,
-    config: configObject,
-});
-console.log(result);
-// { result: "mandatory" | "optional" | null, url: "https://example.com/update" }
+try {
+    const result = checkForUpdatesFromFile({
+        currentVersion,
+        config: configObject,
+    });
+    console.log(result);
+    // { result: "mandatory" | "optional" | null, url: "https://example.com/update" }
+} catch (error) {
+    console.error('Error checking updates from file:', error);
+}
 ```
 
 ##### b. Using integers for version codes
@@ -70,12 +78,16 @@ const configObject = {
     url: 'https://example.com/update', // Latest version URL (optional)
 };
 
-const result = checkForUpdatesFromFile({
-    currentVersion,
-    config: configObject,
-});
-console.log(result);
-// { result: "mandatory" | "optional" | null, url: "https://example.com/update" }
+try {
+    const result = checkForUpdatesFromFile({
+        currentVersion,
+        config: configObject,
+    });
+    console.log(result);
+    // { result: "mandatory" | "optional" | null, url: "https://example.com/update" }
+} catch (error) {
+    console.error('Error checking updates from file:', error);
+}
 ```
 
 ---
