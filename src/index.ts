@@ -79,7 +79,7 @@ async function fetchConfig(url: string): Promise<TConfig> {
             'Invalid configuration file. Missing required fields: versionCode, minimumVersionCode'
         );
     }
-    return (await response.json()) as TConfig;
+    return result;
 }
 
 /**
