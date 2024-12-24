@@ -49,8 +49,8 @@ import { checkForUpdatesFromFile } from 'force-update';
 
 const currentVersion = '1.0.0'; // Current app version
 const configObject = {
-    versionCode: '1.2.0', // Latest app version
-    minimumVersionCode: '1.1.0', // Minimum required app version
+    latest: '1.2.0', // Latest app version
+    minimum: '1.1.0', // Minimum required app version
     url: 'https://example.com/update', // Latest version URL (optional)
 };
 
@@ -73,8 +73,8 @@ import { checkForUpdatesFromFile } from 'force-update';
 
 const currentVersion = 100; // Current app version
 const configObject = {
-    versionCode: 101, // Latest app version
-    minimumVersionCode: 102, // Minimum required app version
+    latest: 101, // Latest app version
+    minimum: 102, // Minimum required app version
     url: 'https://example.com/update', // Latest version URL (optional)
 };
 
@@ -98,8 +98,8 @@ For remote or local configuration, the format should be as follows:
 
 ```json
 {
-    "versionCode": "1.2.0",
-    "minimumVersionCode": "1.1.0",
+    "latest": "1.2.0",
+    "minimum": "1.1.0",
     "url": "https://example.com/update"
 }
 ```
@@ -108,8 +108,8 @@ or
 
 ```json
 {
-    "versionCode": 10203,
-    "minimumVersionCode": 10102
+    "latest": 10203,
+    "minimum": 10102
 }
 ```
 
@@ -117,8 +117,8 @@ or
 
 ### Return Values (result)
 
--   **`mandatory`**: Update required (current version < `minimumVersionCode`).
--   **`optional`**: Update available (current version < `versionCode`).
+-   **`mandatory`**: Update required (current version < `minimum`).
+-   **`optional`**: Update available (current version < `latest`).
 -   **`null`**: App is up-to-date.
 
 ---
