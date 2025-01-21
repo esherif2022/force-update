@@ -1,6 +1,7 @@
 export type TUpdateCheckResult = {
     result: 'mandatory' | 'optional' | null;
     url?: string;
+    config?: TConfig & Record<string, any>;
 };
 
 export type TConfig = {
@@ -54,16 +55,19 @@ function determineUpdateRequirement(
         return {
             result: 'mandatory',
             url,
+            config,
         };
     } else if (currentVersionCode < configVersionCode) {
         return {
             result: 'optional',
             url,
+            config,
         };
     }
     return {
         result: null,
         url,
+        config,
     };
 }
 
