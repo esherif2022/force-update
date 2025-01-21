@@ -34,7 +34,7 @@ const configUrl = 'https://example.com/force_update_config.json'; // Remote conf
 try {
     const result = await checkForUpdatesFromUrl({ currentVersion, configUrl });
     console.log(result);
-    // { result: "mandatory" | "optional" | null, url?: "https://example.com/update" }
+    // { result: "mandatory" | "optional" | null, url?: "https://example.com/update", config?: "original fetched config object" }
 } catch (error) {
     console.error('Error checking updates from URL:', error);
 }
@@ -60,7 +60,7 @@ try {
         config: configObject,
     });
     console.log(result);
-    // { result: "mandatory" | "optional" | null, url: "https://example.com/update" }
+    // { result: "mandatory" | "optional" | null, url?: "https://example.com/update", config?: "original fetched config object" }
 } catch (error) {
     console.error('Error checking updates from file:', error);
 }
@@ -84,7 +84,7 @@ try {
         config: configObject,
     });
     console.log(result);
-    // { result: "mandatory" | "optional" | null, url: "https://example.com/update" }
+    // { result: "mandatory" | "optional" | null, url?: "https://example.com/update", config?: "original fetched config object" }
 } catch (error) {
     console.error('Error checking updates from file:', error);
 }
