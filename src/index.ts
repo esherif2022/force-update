@@ -6,7 +6,7 @@ export type TUpdateCheckResult = {
 
 export type TConfig = {
     latest: number | string;
-    minimum: number | string;
+    minimum?: number | string;
     url?: string;
 };
 
@@ -47,11 +47,15 @@ function determineUpdateRequirement(
             ? config.latest
             : parseVersion(config.latest);
     const configMinimumVersionCode =
-        typeof config.minimum === 'number'
-            ? config.minimum
-            : parseVersion(config.minimum);
-
-    if (currentVersionCode < configMinimumVersionCode) {
+        config.minimum !== undefined
+            ? typeof config.minimum === 'number'
+                ? config.minimum
+                : parseVersion(config.minimum)
+            : null;
+    if (
+        configMinimumVersionCode !== null &&
+        currentVersionCode < configMinimumVersionCode
+    ) {
         return {
             result: 'mandatory',
             url,
@@ -80,9 +84,9 @@ async function fetchConfig(url: string): Promise<TConfig> {
         );
     }
     const result = (await response.json()) as TConfig;
-    if (!result.latest || !result.minimum) {
+    if (!result.latest) {
         throw new Error(
-            'Invalid configuration file. Missing required fields: latest, minimum'
+            'Invalid configuration file. Missing required fields: latest'
         );
     }
     return result;

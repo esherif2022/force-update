@@ -10,6 +10,7 @@ A utility to check for app updates in React Native based on a configuration file
 -   Handles app versions as **strings** (e.g., `"1.2.0"`) or **integers** (e.g., `10203`).
 -   Returns **mandatory**, **optional**, or **null** to indicate update status.
 -   Provides a URL for latest version when applicable in the config file.
+-   Returns the original fetched config object for reference.
 
 ---
 
@@ -97,6 +98,7 @@ try {
 For remote or local configuration, the format should be as follows:
 
 ```json
+// The app supports force updates
 {
     "latest": "1.2.0",
     "minimum": "1.1.0",
@@ -107,6 +109,17 @@ For remote or local configuration, the format should be as follows:
 or
 
 ```json
+// The app does not support force updates
+{
+    "latest": "1.2.0",
+    "url": "https://example.com/update"
+}
+```
+
+or
+
+```json
+// The url is optional
 {
     "latest": 10203,
     "minimum": 10102
